@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, must_be_immutable
 
 import 'package:flutter/material.dart';
 
@@ -7,9 +7,11 @@ class InputFieldWidget extends StatelessWidget {
   final String? hintText;
   final FormFieldValidator<String>? validation;
   final bool? obscureText;
-  const InputFieldWidget(
+  TextInputType? keyboardType ;
+   InputFieldWidget(
       {Key? key,
       required this.controller,
+      this.keyboardType,
       this.hintText,
       this.validation,
       this.obscureText})
@@ -20,7 +22,7 @@ class InputFieldWidget extends StatelessWidget {
     return TextFormField(
       controller: controller,
       cursorColor: Colors.black,
-      
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         hintStyle: TextStyle(
           fontSize: 14,
@@ -42,10 +44,8 @@ class InputFieldWidget extends StatelessWidget {
           borderSide: const BorderSide(color: Color(0xffC7C9D9)),
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-       
       ),
       validator: validation,
-      
     );
   }
 }

@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_const_constructors, avoid_print
-
+// ignore_for_file: prefer_const_constructors, avoid_print, avoid_unnecessary_containers
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rupp_testing_ui_design_flutter/app/widgets/r_button_widget.dart';
 import '../../../constants/theme_constant.dart';
 import '../../widgets/r_inputfield_widget.dart';
 import '../home/view.dart';
+import '../qr_scanner/qr_scanner_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,9 +17,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late TextEditingController _passwordController;
   late TextEditingController _codeController;
+  final TextEditingController _resetController = TextEditingController();
   bool? isValidated = true;
   bool isActivateButton = true;
   bool? isSecure = false;
+  bool? isVerify = false;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -32,18 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         this.isActivateButton = isActivateButton;
       });
-
-      // if (_passwordController.text == "Snat") {
-      //   setState(() {
-      //     isValidated == true;
-      //     print("$isValidated");
-      //   });
-      // } else {
-      //   setState(() {
-      //     isValidated == false;
-      //     print("$isValidated");
-      //   });
-      // }
     });
   }
 
@@ -57,89 +48,377 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         backgroundColor: Color(0xFFF2F2F5),
+        bottomNavigationBar: InkWell(
+          onTap: () {
+            Get.to(
+              () => QRCodeScreen(),
+            );
+          },
+          // onTapDown: (value) {
+          //   Get.to(() => QRCodeScreen());
+          //   print("value $value");
+          // },
+          child: _showBottomBav(),
+        ),
         body: SafeArea(
-          child: SizedBox(
+          child: Container(
+            alignment: Alignment.center,
+            margin: EdgeInsets.symmetric(horizontal: 10),
             width: width,
-            height: height,
-            child: Form(
-              key: _formKey,
-              child: LayoutBuilder(builder: (context, constraint) {
-                return Column(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      height: 100,
-                    ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      physics: BouncingScrollPhysics(),
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10),
-                        child: bodyWidget(height, width, constraint),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.center,
+                            children: [
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 800),
+                                child: Image.asset(
+                                  "assets/images/login_subtract.png",
+                                  fit: BoxFit.fill,
+                                  height: 400,
+                                ),
+                              ),
+                              Positioned(
+                                top: -80,
+                                child: Image(
+                                  image: AssetImage("assets/images/logo.png"),
+                                  // height: constraints.maxHeight / 4,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 300,
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 50,
+                                    ),
+                                    Text(
+                                      "Welcome",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        height: 1.3,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Manrope",
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    isValidated == false
+                                        ? AnimatedOpacity(
+                                            duration:
+                                                Duration(milliseconds: 400),
+                                            opacity:
+                                                isValidated == false ? 1 : 0,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              // ignore: prefer_const_literals_to_create_immutables
+                                              children: [
+                                                Icon(
+                                                  Icons.warning_amber_rounded,
+                                                  color: Colors.red,
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Text(
+                                                  "Incorrect code or password",
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : SizedBox(),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    InputFieldWidget(
+                                      controller: _codeController,
+                                      hintText: "Enter Code",
+                                      validation: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return value;
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: isValidated == false ? 0 : 20,
+                                    ),
+                                    InputFieldWidget(
+                                      controller: _passwordController,
+                                      hintText: "Enter Password",
+                                      validation: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return value;
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: InkWell(
+                                        onTap: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            builder: (context) =>
+                                                StatefulBuilder(builder:
+                                                    (BuildContext context,
+                                                        StateSetter setState) {
+                                              return SingleChildScrollView(
+                                                child: Container(
+                                                  padding: EdgeInsets.only(
+                                                    bottom:
+                                                        MediaQuery.of(context)
+                                                            .viewInsets
+                                                            .bottom,
+                                                  ),
+                                                  child: Container(
+                                                    color: Color(0xff757575),
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(20.0),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  20.0),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  20.0),
+                                                        ),
+                                                      ),
+                                                      child: Column(
+                                                        children: [
+                                                          Container(
+                                                            width: 63,
+                                                            height: 4,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Color(
+                                                                  0xFF8F90A6),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(
+                                                                Radius.circular(
+                                                                  10,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .topLeft,
+                                                            child: Text(
+                                                              isVerify == false
+                                                                  ? 'Reset password'
+                                                                  : "Sinat",
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .left,
+                                                              style:
+                                                                  ThemeConstant
+                                                                      .textTheme
+                                                                      .headline5!
+                                                                      .copyWith(
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .topLeft,
+                                                            child: Text(
+                                                              'Enter your phone number for the verification process, we will send 4 digits code to your phone number.',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .left,
+                                                              style: ThemeConstant
+                                                                  .textTheme
+                                                                  .bodyMedium!
+                                                                  .copyWith(
+                                                                fontSize: 16,
+                                                                color: Color(
+                                                                    0xFF6B7588),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .topLeft,
+                                                            child: Text(
+                                                              "Phone number",
+                                                              style: ThemeConstant
+                                                                  .textTheme
+                                                                  .bodyMedium!
+                                                                  .copyWith(
+                                                                fontSize: 16,
+                                                                color: Color(
+                                                                  0xFF6B7588,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          InputFieldWidget(
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .number,
+                                                            controller:
+                                                                _resetController,
+                                                            hintText:
+                                                                "0123456789",
+                                                          ),
+                                                          Container(
+                                                            width: width,
+                                                            height: 50,
+                                                            margin: EdgeInsets
+                                                                .symmetric(
+                                                                    vertical:
+                                                                        20),
+                                                            child:
+                                                                RButtonWidget(
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                              title: "Confirm",
+                                                              onPressed: () {
+                                                                setState(() {
+                                                                  isVerify ==
+                                                                      true;
+                                                                });
+                                                                Get.back();
+                                                                Get.to(
+                                                                  () =>
+                                                                      QRCodeScreen(),
+                                                                );
+
+                                                                _resetController
+                                                                        .text =
+                                                                    "sinat";
+                                                              },
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom:
+                                                isValidated == false ? 8 : 10,
+                                            top: isValidated == false ? 0 : 10,
+                                          ),
+                                          child: Text(
+                                            "Forgot Password?",
+                                            style: TextStyle(
+                                              color: ThemeConstant
+                                                  .light.colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: "Manrope",
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: width,
+                                      height: 48,
+                                      child: RButtonWidget(
+                                        title: "Login",
+                                        backgroundColor: ThemeConstant
+                                            .light.colorScheme.primary,
+                                        onPressed: () {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            setState(() {
+                                              isValidated = true;
+                                            });
+                                            Get.to(() => HomeScreen());
+                                          } else {
+                                            setState(() {
+                                              isValidated = false;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "New User?",
+                                style:
+                                    ThemeConstant.textTheme.bodySmall!.copyWith(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  print("register");
+                                },
+                                child: Text(
+                                  "Register",
+                                  style: ThemeConstant.textTheme.bodySmall!
+                                      .copyWith(
+                                    color:
+                                        ThemeConstant.light.colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "New User?",
-                          style: ThemeConstant.textTheme.bodySmall!.copyWith(
-                            color: Colors.black,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            print("register");
-                          },
-                          child: Text(
-                            "Register",
-                            style: ThemeConstant.textTheme.bodyMedium!.copyWith(
-                              color: ThemeConstant.light.colorScheme.primary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Get.to(() => HomeScreen());
-                      },
-                      child: Container(
-                        alignment: Alignment.bottomCenter,
-                        width: width,
-                        height: 69,
-                        child: DraggableScrollableSheet(builder: (_, context) {
-                          return Container(
-                            width: width,
-                            color: Colors.red,
-                          );
-                        }),
-                      ),
-                    )
-                    // Container(
-                    //     width: width,
-                    //     height: 30,
-                    //     alignment: Alignment.bottomCenter,
-                    //     child: DraggableScrollableSheet(
-                    //         builder: (_, controller) {
-                    //       return SingleChildScrollView(
-                    //         scrollDirection: Axis.vertical,
-                    //         child: Container(
-                    //           color: Colors.red,
-                    //         ),
-                    //       );
-                    //     }))
                   ],
-                );
-              }),
+                ),
+              ),
             ),
           ),
         ),
@@ -147,177 +426,37 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Stack bodyWidget(double height, double width, BoxConstraints constraints) {
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        AnimatedContainer(
-          duration: Duration(milliseconds: 1000),
-          child: Image.asset(
-            "assets/images/login_subtract.png",
-            fit: BoxFit.fill,
-            height: isValidated == true
-                ? constraints.maxHeight / 1.5
-                : constraints.maxHeight / 1.5,
-          ),
+  Widget _showBottomBav() {
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
         ),
-        Positioned(
-          top: -80,
-          child: Image(
-            image: AssetImage("assets/images/logo.png"),
-            height: constraints.maxHeight / 4,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        // ignore: prefer_const_literals_to_create_immutables
+        children: [
+          Icon(
+            Icons.camera_alt_outlined,
+            color: Colors.white,
+            size: 24,
           ),
-        ),
-        Positioned(
-          top: 80,
-          child: Text(
-            "Welcome",
-            style: TextStyle(
-              fontSize: 20,
-              height: 1.3,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Manrope",
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            "Scan QR Code",
+            style: ThemeConstant.textTheme.subtitle2!.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
             ),
           ),
-        ),
-        AnimatedPositioned(
-            duration: Duration(milliseconds: 400),
-            top: 120,
-            left: 16,
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 400),
-              opacity: isValidated == false ? 1 : 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-
-                // ignore: prefer_const_literals_to_create_immutables
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.red,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    "Incorrect code or password",
-                    style: TextStyle(
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            )),
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 400),
-          top: isValidated == true ? 140 : 160,
-          child: Container(
-            width: constraints.maxWidth * .9,
-            margin: EdgeInsets.symmetric(horizontal: 100),
-            child: InputFieldWidget(
-              controller: _codeController,
-              hintText: "Enter Code",
-              validation: (value) {
-                if (value == null || value.isEmpty) {
-                  return value;
-                }
-                return null;
-              },
-            ),
-          ),
-        ),
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 400),
-          top: isValidated == true ? 215 : 235,
-          child: SizedBox(
-            width: constraints.maxWidth * .9,
-            child: InputFieldWidget(
-              controller: _passwordController,
-              hintText: "Enter Password",
-              obscureText: isSecure,
-              validation: (value) {
-                if (value == null || value.isEmpty) {
-                  return value;
-                }
-                return null;
-              },
-            ),
-          ),
-        ),
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 400),
-          top: isValidated == true ? 290 : 310,
-          right: 20,
-          child: InkWell(
-            onTap: () {
-              print("Forgot Password?");
-            },
-            child: TextButton(
-              onPressed: () {},
-              child: Text(
-                "Forgot Password?",
-                style: TextStyle(
-                  color: ThemeConstant.light.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 400),
-          bottom: isValidated == true ? 45 : 30,
-          child: SizedBox(
-            width: constraints.maxWidth * .9,
-            height: 54,
-            child: ElevatedButton(
-              // style: ElevatedButton.styleFrom(
-              //   onSurface: Colors.blue,
-              // ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
-                    ThemeConstant.light.colorScheme.primary),
-              ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  setState(() {
-                    isValidated = true;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Processing Data')),
-                  );
-                } else {
-                  setState(() {
-                    isValidated = false;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Processing Dataasdfadfsdf'),
-                    ),
-                  );
-                }
-              },
-              // onPressed: isActivateButton
-              //     ? () {
-              //         setState(() {
-              //           isActivateButton = false;
-              //         });
-              //       }
-
-              child: Text(
-                "Login",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontFamily: "Manrope",
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
